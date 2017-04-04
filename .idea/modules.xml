@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/GridWars.iml" filepath="$PROJECT_DIR$/.idea/modules/GridWars.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/GridWars_main.iml" filepath="$PROJECT_DIR$/.idea/modules/GridWars_main.iml" group="GridWars" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/GridWars_test.iml" filepath="$PROJECT_DIR$/.idea/modules/GridWars_test.iml" group="GridWars" />
+    </modules>
+  </component>
+</project>
