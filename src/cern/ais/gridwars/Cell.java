@@ -8,6 +8,9 @@ import javax.xml.bind.annotation.XmlElementDecl;
  * Created by bruno on 05/04/17.
  */
 public class Cell {
+
+    public static final int MAX_TROOPS = 100;
+
     public Cell(GlobalContext gc, Coordinates coor){
         this.ctx = gc;
         this.coords = coor;

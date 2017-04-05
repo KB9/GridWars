@@ -6,10 +6,10 @@ package cern.ais.gridwars.MachineLearning;
 public class Params {
 
     // Used for the neural network
-    public static final int NUM_INPUTS = 4;
+    public static final int NUM_INPUTS = 2500;
     public static final int NUM_HIDDEN_LAYERS = 1;
-    public static final int NUM_NEURONS_PER_HIDDEN_LAYER = 6;
-    public static final int NUM_OUTPUTS = 2;
+    public static final int NUM_NEURONS_PER_HIDDEN_LAYER = 4;
+    public static final int NUM_OUTPUTS = 2500;
 
     // For tweaking the sigmoid function
     public static final double ACTIVATION_RESPONSE = 1.0;

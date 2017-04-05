@@ -12,6 +12,7 @@ public class NeuronLayer {
     public List<Neuron> neurons = new ArrayList<>();
 
     public NeuronLayer(int numNeurons, int numInputsPerNeuron) {
+        this.numNeurons = numNeurons;
         for (int i = 0; i < numNeurons; ++i) {
             neurons.add(new Neuron(numInputsPerNeuron));
         }

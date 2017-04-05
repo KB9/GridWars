@@ -1,5 +1,7 @@
 package cern.ais.gridwars;
 
+import cern.ais.gridwars.MachineLearning.MachineLearningBot;
+import cern.ais.gridwars.MachineLearning.MachineLearningTrainer;
 import cern.ais.gridwars.bot.PlayerBot;
 import cern.ais.gridwars.cell.Cell;
 import cern.ais.gridwars.command.MovementCommand;
@@ -120,7 +122,8 @@ public class Visualizer {
 
 	public static void main(String[] args) throws FileNotFoundException
 	{
-		new Visualizer().runGame(new TeamBot(), new GroovyBot());
+		//new Visualizer().runGame(new TeamBot(), new GroovyBot());
+		new MachineLearningTrainer();
 	}
 
 	public void runGame(PlayerBot bot1, PlayerBot bot2) throws FileNotFoundException
