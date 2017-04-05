@@ -89,6 +89,13 @@ public class GlobalContext {
     public Cell cellAt(Coordinates coords){
         return cells[coords.getX()][coords.getY()];
     }
+
+    public CellData getPrevCellSnapshot(int turnsAgo, int x, int y) {
+        if (turnsAgo < 1 || turnsAgo > 10) return null;
+
+        return prevCellStates.get(10 - turnsAgo).cells[x][y];
+    }
+    
     public Cell[][] cells;
 
     public CircularArrayList<GridData> prevCellStates = new CircularArrayList<>(10);
