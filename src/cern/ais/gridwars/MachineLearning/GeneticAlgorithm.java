@@ -10,7 +10,7 @@ import java.util.List;
 public class GeneticAlgorithm {
 
     // Holds the entire population of chromosomes
-    private List<Genome> population;
+    private List<Genome> population = new ArrayList<>();
 
     // Size of population
     private int populationSize;
