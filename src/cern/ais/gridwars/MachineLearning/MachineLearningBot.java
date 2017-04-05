@@ -29,10 +29,12 @@ public class MachineLearningBot implements PlayerBot {
     private NeuralNet brain;
     public double fitness;
     private List<Double> weights;
+    private GlobalContext context;
 
     public MachineLearningBot() {
         brain = new NeuralNet();
         weights = new ArrayList<>();
+        context = new GlobalContext();
     }
 
     public void putWeights(List<Double> weights) {
@@ -48,11 +50,12 @@ public class MachineLearningBot implements PlayerBot {
     public void getNextCommands(UniverseView universeView, List<MovementCommand> list) {
         if (weights.size() == 0) return;
 
+        context.updateUniverseView(universeView);
+
         // Get list of weights for every cell in the grid
-        List<Double> inputs = convertGridToWeights(universeView);
+        List<Double> inputs = convertGridToWeights();
         List<Double> outputs = brain.update(inputs);
 
-        GlobalContext context = new GlobalContext(universeView);
         for (int col = 0; col < GlobalContext.GRID_WIDTH; col++) {
             for (int row = 0; row < GlobalContext.GRID_HEIGHT; row++) {
                 Cell cell = context.cells[col][row];
@@ -70,23 +73,9 @@ public class MachineLearningBot implements PlayerBot {
                 list.add(command);
             }
         }
-//        for (Cell cell : context.myCells()) {
-//            // Get the index of the weight which corresponds to the current cell
-//            // TODO: This may not be the correct corresponding index
-//            int index = (cell.coords.getY() * GlobalContext.GRID_WIDTH) + cell.coords.getX();
-//            // Categorize the weight into a movement tactic
-//            MovementTactic tactic = categorizeWeight(outputs.get(index));
-//            // Convert the movement tactic into an actual movement command
-//            MovementCommand command = getCommand(tactic, cell);
-//            System.out.println(command.toString());
-//            // Add the command to the list of commands
-//            list.add(command);
-//        }
     }
 
-    private List<Double> convertGridToWeights(UniverseView universeView) {
-        GlobalContext context = new GlobalContext(universeView);
-
+    private List<Double> convertGridToWeights() {
         List<Double> weights = new ArrayList<>();
         for (int column = 0; column < context.cells.length; column++) {
             for (int row = 0; row < context.cells[column].length; row++) {

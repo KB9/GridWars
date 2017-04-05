@@ -7,14 +7,15 @@ import java.util.List;
 
 public class TeamBot implements PlayerBot {
 	Policy policy;
-	GlobalContext ctx;
+	GlobalContext ctx = new GlobalContext();
 
 	TeamBot(){
 	    policy = new ExpandPolicy();
     }
 	@Override public void getNextCommands(UniverseView universeView, List<MovementCommand> movementCommands) {
-        ctx = new GlobalContext(universeView);
+        ctx.updateUniverseView(universeView);
 	    policy.execute(ctx);
-	    ctx.fillTurnCommands(movementCommands);
+	    ctx.recordCellStates();
+	    ctx.dumpTurnCommands(movementCommands);
 	}
 }
