@@ -5,8 +5,16 @@ import cern.ais.gridwars.command.MovementCommand;
 
 import java.util.List;
 
-public class IdleBot implements PlayerBot {
+public class TeamBot implements PlayerBot {
+	Policy policy;
+	GlobalContext ctx;
+
+	TeamBot(){
+	    policy = new ExpandPolicy();
+    }
 	@Override public void getNextCommands(UniverseView universeView, List<MovementCommand> movementCommands) {
-		// Relax and lose
+        ctx = new GlobalContext(universeView);
+	    policy.execute(ctx);
+	    ctx.fillTurnCommands(movementCommands);
 	}
 }
