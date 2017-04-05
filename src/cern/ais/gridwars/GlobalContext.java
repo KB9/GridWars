@@ -30,8 +30,8 @@ public class GlobalContext {
         }
 
         return nextTurnCommands.get(c);
-
     }
+
     public void addCommand(Cell cell, MovementCommand mc) {
         if (mc == null) return;
 

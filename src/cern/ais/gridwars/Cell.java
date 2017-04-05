@@ -24,6 +24,16 @@ public class Cell {
         return true;
     }
 
+    public boolean surroundedByMe() {
+        return cellUp().belongsToMe() &&
+                cellDown().belongsToMe() &&
+                cellLeft().belongsToMe() &&
+                cellRight().belongsToMe();
+    }
+
+    public int cellsToBoundary(MovementCommand.Direction d) {
+    }
+
     public int bestNextTurnEnemyAttackCount() {
         int total = cellUp().enemyTroops()
                 + cellDown().enemyTroops()
