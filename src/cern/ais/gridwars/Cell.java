@@ -51,12 +51,17 @@ public class Cell {
         if(isEmpty()) return 0;
 
         boolean isMine = belongsToMe();
+
+
         Cell next = cellAt(d);
-        if (next.belongsToMe() != isMine){
-            return 1;
+        int cnt = 1;
+        while(next.belongsToMe() == isMine){
+            if (next == this) return -1;
+            ++cnt;
+            next = next.cellAt(d);
         }
 
-        return 1 + next.cellsToBoundary(d);
+        return cnt;
     }
 
     public int bestNextTurnEnemyAttackCount() {
@@ -72,11 +77,15 @@ public class Cell {
         int troops = troopCount();
         count = count <= troops ? count : troops;
 
-        if (belongsToEnemy()) {
+        if (belongsToEnemy() || count <= 0) {
             return;
         }
 
         ctx.addCommand(this, new MovementCommand(coords, dir, new Long(count)));
+    }
+
+    public void executeCommand(CellCommand cmd) {
+        cmd.execute(this);
     }
 
     public int bestNextTurnMyAttackCount() {

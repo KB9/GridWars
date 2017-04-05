@@ -49,7 +49,8 @@ public class GlobalContext {
 
     void dumpTurnCommands(List<MovementCommand> cmd) {
         for (ArrayList<MovementCommand> e : this.nextTurnCommands.values()) {
-            cmd.add(e.get(0));
+            for (MovementCommand mc : e)
+            cmd.add(mc);
         }
 
         nextTurnCommands = new HashMap<>();
@@ -95,7 +96,11 @@ public class GlobalContext {
 
         return prevCellStates.get(10 - turnsAgo).cells[x][y];
     }
-    
+
+    public CellData getPrevCellSnapshot(int turnsAgo, Coordinates coords) {
+        return getPrevCellSnapshot(turnsAgo, coords.getX(), coords.getY());
+    }
+
     public Cell[][] cells;
 
     public CircularArrayList<GridData> prevCellStates = new CircularArrayList<>(10);

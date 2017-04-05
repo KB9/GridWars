@@ -72,8 +72,8 @@ public class CircularArrayList<E>
     public void add(int i, E e) {
         int s = size();
         if (s == n - 1) {
-            throw new IllegalStateException("Cannot add element."
-                    + " CircularArrayList is filled to capacity.");
+            remove(0);
+            s = size();
         }
         if (i < 0 || i > s) {
             throw new IndexOutOfBoundsException();
