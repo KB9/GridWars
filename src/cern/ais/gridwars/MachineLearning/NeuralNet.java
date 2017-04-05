@@ -33,7 +33,7 @@ public class NeuralNet {
             layers.add(new NeuronLayer(numNeuronsPerHiddenLayer, numInputs));
 
             // Create the hidden layers
-            for (int i = 0; i < numHiddenLayers; ++i) {
+            for (int i = 0; i < numHiddenLayers - 1; ++i) {
                 layers.add(new NeuronLayer(
                         numNeuronsPerHiddenLayer,
                         numNeuronsPerHiddenLayer
@@ -45,7 +45,7 @@ public class NeuralNet {
         }
         else {
             // Create the output layer
-            layers.add(new NeuronLayer(numOutputs, numNeuronsPerHiddenLayer));
+            layers.add(new NeuronLayer(numOutputs, numInputs));
         }
     }
 
@@ -69,7 +69,7 @@ public class NeuralNet {
     public int getNumberOfWeights() {
         int weights = 0;
         // For each layer
-        for (int i = 0; i < numHiddenLayers; ++i) {
+        for (int i = 0; i < numHiddenLayers + 1; ++i) {
             // For each neuron
             for (int j = 0; j < layers.get(i).numNeurons; ++j) {
                 // For each weight
@@ -85,14 +85,19 @@ public class NeuralNet {
     public void putWeights(List<Double> weights) {
         int weight = 0;
         // For each layer
-        for (int i = 0; i < numHiddenLayers; ++i) {
+        for (int i = 0; i < numHiddenLayers + 1; ++i) {
             // For each neuron
             for (int j = 0; j < layers.get(i).numNeurons; ++j) {
                 // For each weight
                 for (int k = 0; k < layers.get(i).neurons.get(j).numInputs; ++k) {
                     // Replace the old weight with the new weight
-                    layers.get(i).neurons.get(j).weights.remove(k);
-                    layers.get(i).neurons.get(j).weights.add(k, weights.get(weight++));
+                    try {
+                        layers.get(i).neurons.get(j).weights.set(k, weights.get(weight++));
+                    } catch (IndexOutOfBoundsException e) {
+                        System.out.println("i=" + i + " j=" + j + " k=" + k + " weight=" + weight + " numInputs=" + layers.get(i).neurons.get(j).numInputs);
+                        e.printStackTrace();
+                        int x = 1 / 0;
+                    }
                 }
             }
         }
@@ -100,50 +105,61 @@ public class NeuralNet {
 
     // Calculates the outputs from a set of inputs
     public List<Double> update(List<Double> inputs) {
-        List<Double> outputs = new ArrayList<>();
-        int weight = 0;
+            List<Double> outputs = new ArrayList<>();
+            int weight = 0;
 
-        // First check that we have the correct number of inputs
-        if (inputs.size() != numInputs) {
-            // Just return an empty vector if incorrect
-            return outputs;
-        }
-
-        // For each layer
-        for (int i = 0; i < numHiddenLayers + 1; ++i) {
-            if (i > 0) {
-                inputs = outputs;
+            // First check that we have the correct number of inputs
+            if (inputs.size() != numInputs) {
+                // Just return an empty vector if incorrect
+                return outputs;
             }
 
-            outputs.clear();
-            weight = 0;
-
-            // For each neuron, sum the (inputs * corresponding weights).
-            // Throw the total at the sigmoid function to get the output
-            for (int j = 0; j < layers.get(i).numNeurons; ++j) {
-                double netInput = 0;
-                int numInputs = layers.get(i).neurons.get(j).numInputs;
-
-                // For each weight
-                for (int k = 0; k < numInputs - 1; ++k) {
-                    // Sum the weights * inputs
-                    netInput += layers.get(i).neurons.get(j).weights.get(k) *
-                            inputs.get(weight++);
+            // For each layer
+            for (int i = 0; i < numHiddenLayers + 1; ++i) {
+                if (i > 0) {
+//                    inputs = outputs;
+                    inputs.clear();
+                    for (double v : outputs) {
+                        inputs.add(v);
+                    }
                 }
 
-                // Add in the bias
-                netInput +=
-                        layers.get(i).neurons.get(j).weights.get(numInputs-1) *
-                        Params.BIAS;
-
-                // Outputs from each layer can be stored as they are generated.
-                // The combined activation is first filtered through the sigmoid
-                // function
-                outputs.add(sigmoid(netInput, Params.ACTIVATION_RESPONSE));
-
+                outputs.clear();
                 weight = 0;
+
+                // For each neuron, sum the (inputs * corresponding weights).
+                // Throw the total at the sigmoid function to get the output
+                for (int j = 0; j < layers.get(i).numNeurons; ++j) {
+                    double netInput = 0;
+                    int numInputs = layers.get(i).neurons.get(j).numInputs;
+
+                    // For each weight
+                    for (int k = 0; k < numInputs - 1; ++k) {
+                        // Sum the weights * inputs
+                        try {
+                            netInput += layers.get(i).neurons.get(j).weights.get(k) *
+                                    inputs.get(weight++);
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.println("i=" + i + " j=" + j + " k=" + k);
+                            System.out.println("inputs.size()=" + inputs.size());
+                            e.printStackTrace();
+                            int x = 1 / 0;
+                        }
+                    }
+
+                    // Add in the bias
+                    netInput +=
+                            layers.get(i).neurons.get(j).weights.get(numInputs - 1) *
+                                    Params.BIAS;
+
+                    // Outputs from each layer can be stored as they are generated.
+                    // The combined activation is first filtered through the sigmoid
+                    // function
+                    outputs.add(sigmoid(netInput, Params.ACTIVATION_RESPONSE));
+
+                    weight = 0;
+                }
             }
-        }
         return outputs;
     }
 

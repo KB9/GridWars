@@ -14,6 +14,10 @@ import java.util.Map;
 
 public class GlobalContext {
 
+    public static final int NUM_CELLS = 2500;
+    public static final int GRID_WIDTH = 50;
+    public static final int GRID_HEIGHT = 50;
+
     public GlobalContext() {
         this.cells = new Cell[50][50];
         for (int x = 0; x < 50; ++x) {

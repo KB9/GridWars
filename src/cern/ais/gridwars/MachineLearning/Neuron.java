@@ -11,9 +11,7 @@ public class Neuron {
     public int numInputs;
     public List<Double> weights = new ArrayList<>();
 
-    public Neuron() {
-
-    }
+    public Neuron() {}
 
     Neuron(int numInputs) {
         this.numInputs = numInputs + 1;
