@@ -1,5 +1,6 @@
 package cern.ais.gridwars.MachineLearning;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -7,7 +8,7 @@ import java.util.List;
  */
 public class Genome implements Comparable<Genome> {
 
-    public List<Double> weights;
+    public List<Double> weights = new ArrayList<>();
     public double fitness;
 
     public Genome() {

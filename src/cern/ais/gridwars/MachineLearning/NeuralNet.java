@@ -13,7 +13,7 @@ public class NeuralNet {
     private int numHiddenLayers;
     private int numNeuronsPerHiddenLayer;
 
-    private List<NeuronLayer> layers;
+    private List<NeuronLayer> layers = new ArrayList<>();
 
     public NeuralNet() {
         numInputs = Params.NUM_INPUTS;
