@@ -8,9 +8,18 @@ import javax.xml.bind.annotation.XmlElementDecl;
  * Created by bruno on 05/04/17.
  */
 public class Cell {
-    public Cell(GlobalContext gc, Coordinates coor){
+    public enum Owner {
+        EMPTY,
+        MINE,
+        ENEMY
+    }
+
+    public Cell(GlobalContext gc) {
         this.ctx = gc;
-        this.coords = coor;
+    }
+
+    public void updateCoordinates(Coordinates c){
+        this.coords = c;
     }
 
     public boolean safeForNextTurn() {
@@ -31,8 +40,23 @@ public class Cell {
                 cellRight().belongsToMe();
     }
 
+    public boolean surroundedByEnemy() {
+        return cellUp().belongsToEnemy() &&
+                cellDown().belongsToEnemy() &&
+                cellLeft().belongsToEnemy() &&
+                cellRight().belongsToEnemy();
+    }
+
     public int cellsToBoundary(MovementCommand.Direction d) {
-        return 0;
+        if(isEmpty()) return 0;
+
+        boolean isMine = belongsToMe();
+        Cell next = cellAt(d);
+        if (next.belongsToMe() != isMine){
+            return 1;
+        }
+
+        return 1 + next.cellsToBoundary(d);
     }
 
     public int bestNextTurnEnemyAttackCount() {
@@ -49,7 +73,7 @@ public class Cell {
         count = count <= troops ? count : troops;
 
         if (belongsToEnemy()) {
-            ctx.addCommand(this, null);
+            return;
         }
 
         ctx.addCommand(this, new MovementCommand(coords, dir, new Long(count)));
@@ -90,6 +114,9 @@ public class Cell {
     public Cell cellAt(Coordinates coords){
         return ctx.cellAt(coords);
     }
+    public Cell cellAt(MovementCommand.Direction dir) {
+        return ctx.cellAt(coords.getRelative(1, dir));
+    }
 
     public int troopCount(){
         return ctx.uv.getPopulation(coords).intValue();
@@ -104,6 +131,12 @@ public class Cell {
         if (belongsToEnemy()) return 0;
 
         return ctx.uv.getPopulation(coords).intValue();
+    }
+
+    public Owner owner() {
+        if (isEmpty()) return Owner.EMPTY;
+        if (belongsToMe()) return Owner.MINE;
+        else return Owner.ENEMY;
     }
 
     public Cell cellUp() {

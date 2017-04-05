@@ -15,7 +15,7 @@ public class ExpandPolicy extends Policy {
         ArrayList<Cell> myCells = ctx.myCells();
 
         for (Cell c : myCells){
-            c.moveTroops(MovementCommand.Direction.DOWN, 100);
+            c.moveTroops(MovementCommand.Direction.DOWN, 50);
         }
     }
 
