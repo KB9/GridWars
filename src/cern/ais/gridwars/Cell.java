@@ -32,6 +32,7 @@ public class Cell {
     }
 
     public int cellsToBoundary(MovementCommand.Direction d) {
+        return 0;
     }
 
     public int bestNextTurnEnemyAttackCount() {
