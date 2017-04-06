@@ -6,9 +6,12 @@ import cern.ais.gridwars.command.MovementCommand;
  * Created by bruno on 05/04/17.
  */
 public class CellExpandCommand implements CellCommand {
-    private int boolToInt(boolean b) {
-        return b ? 1 : 0;
+    private boolean aggressive;
+
+    public CellExpandCommand(boolean aggressive) {
+        this.aggressive = aggressive;
     }
+
     public void execute(Cell c) {
         int currTroops = c.troopCount();
         currTroops -= 5;
@@ -30,6 +33,7 @@ public class CellExpandCommand implements CellCommand {
         int troopsLeftRight = currTroops / 4;
         int troopsUpDown = currTroops / 4;
 
+
         if (verticalStrip) {
             troopsLeftRight *= 2;
             troopsUpDown = 0;
@@ -40,21 +44,44 @@ public class CellExpandCommand implements CellCommand {
         }
 
 
+
         if(c.surroundedByMe()) {
 
             if (!verticalStrip) {
                 if (shouldMoveUp) {
-                    c.moveTroops(MovementCommand.Direction.UP, troopsUpDown);
+                    if (c.cellUp().troopCount() < 90)
+                        c.moveTroops(MovementCommand.Direction.UP, troopsUpDown);
                 } else
-                    c.moveTroops(MovementCommand.Direction.DOWN, troopsUpDown);
+                    if(c.cellDown().troopCount() < 90)
+                        c.moveTroops(MovementCommand.Direction.DOWN, troopsUpDown);
             }
 
             if (!horizontalStrip) {
                 if (shouldMoveLeft) {
-                    c.moveTroops(MovementCommand.Direction.LEFT, troopsLeftRight);
+                    if (c.cellLeft().troopCount() < 90)
+                        c.moveTroops(MovementCommand.Direction.LEFT, troopsLeftRight);
                 } else
-                    c.moveTroops(MovementCommand.Direction.RIGHT, troopsLeftRight);
+                    if (c.cellRight().troopCount() < 90)
+                        c.moveTroops(MovementCommand.Direction.RIGHT, troopsLeftRight);
             }
+
+
+            if (horizontalStrip && verticalStrip) {
+                // We are stuck between two strips. Just move depending on your location
+                MovementCommand.Direction upDown = c.coords.getY() < 25
+                        ? MovementCommand.Direction.UP
+                        : MovementCommand.Direction.DOWN;
+                MovementCommand.Direction leftRight = c.coords.getX() < 25
+                        ? MovementCommand.Direction.LEFT
+                        : MovementCommand.Direction.RIGHT;
+                c.moveTroops(upDown, currTroops / 2);
+                c.moveTroops(leftRight, currTroops / 2);
+
+            }
+
+
+
+
 
             //c.moveTroops(MovementCommand.Direction.LEFT, troopsPerSide);
             //c.moveTroops(MovementCommand.Direction.RIGHT, troopsPerSide);
@@ -62,18 +89,36 @@ public class CellExpandCommand implements CellCommand {
             return;
         }
 
-        if (/*c.cellUp().safeForNextTurn() &&*/ shouldMoveUp){
-            c.moveTroops(MovementCommand.Direction.UP, troopsUpDown);
-        }
-        if (/*c.cellRight().safeForNextTurn() &&*/ !shouldMoveLeft){
-            c.moveTroops(MovementCommand.Direction.RIGHT, troopsLeftRight);
-        }
-        if (/*c.cellDown().safeForNextTurn() &&*/ !shouldMoveUp){
-            c.moveTroops(MovementCommand.Direction.DOWN, troopsUpDown);
-        }
-        if (/*c.cellLeft().safeForNextTurn() &&*/ shouldMoveLeft){
-            c.moveTroops(MovementCommand.Direction.LEFT, troopsLeftRight);
+        if (aggressive){
+            if (c.cellUp().belongsToEnemy()) {
+                c.moveTroops(MovementCommand.Direction.UP, currTroops  );
+                return;
+            }
+            if (c.cellRight().belongsToEnemy()) {
+                c.moveTroops(MovementCommand.Direction.RIGHT, currTroops );
+                return;
+            }
+            if (c.cellDown().belongsToEnemy()) {
+                c.moveTroops(MovementCommand.Direction.DOWN, currTroops );
+                return;
+            }
+            if (c.cellLeft().belongsToEnemy()) {
+                c.moveTroops(MovementCommand.Direction.LEFT, currTroops);
+                return;
+            }
         }
 
+        if ((aggressive || c.cellUp().safeForNextTurn()) && shouldMoveUp){
+            c.moveTroops(MovementCommand.Direction.UP, currTroops / 2);
+        }
+        if ((aggressive || c.cellRight().safeForNextTurn()) && !shouldMoveLeft){
+            c.moveTroops(MovementCommand.Direction.RIGHT, currTroops / 2);
+        }
+        if ((aggressive || c.cellDown().safeForNextTurn()) && !shouldMoveUp){
+            c.moveTroops(MovementCommand.Direction.DOWN, currTroops / 2);
+        }
+        if ((aggressive || c.cellLeft().safeForNextTurn()) && shouldMoveLeft){
+            c.moveTroops(MovementCommand.Direction.LEFT, currTroops / 2);
+        }
     }
 }
