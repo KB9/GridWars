@@ -13,7 +13,7 @@ public class ExpandPolicy extends Policy {
     public ExpandPolicy(boolean aggressive){
         this.aggressive = aggressive;
     }
-    void execute(GlobalContext ctx){
+    public void execute(GlobalContext ctx){
         this.logPolicy(ctx);
 
         ArrayList<Cell> myCells = ctx.myCells();

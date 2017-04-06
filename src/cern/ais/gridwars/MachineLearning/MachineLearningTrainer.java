@@ -46,7 +46,7 @@ public class MachineLearningTrainer {
                 POPULATION_SIZE,
                 Params.MUTATION_RATE,
                 Params.CROSSOVER_RATE,
-                22504);// I HAVE NO IDEA WHY THIS IS THE NUMBER (+4 is hidden layer)
+                10009);// (2501 * 4) + 4 + 1
 
         bots = new ArrayList<>();
         for (int i = 0; i < POPULATION_SIZE; i++) {
@@ -71,7 +71,7 @@ public class MachineLearningTrainer {
 
         // Run the game
         try {
-            runGame(bots.get(currentlyTrainingIndex), new TeamBot());
+            runGame(bots.get(currentlyTrainingIndex), new TeamBot(true));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -99,15 +99,17 @@ public class MachineLearningTrainer {
 
             // Run the game
             try {
-                createGame(bots.get(currentlyTrainingIndex), new TeamBot());
+                createGame(bots.get(currentlyTrainingIndex), new TeamBot(true));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
         } else {
             // Update the fitness by counting the number of our troops
             int totalTroopCount = getTotalTroopCount();
-            bots.get(currentlyTrainingIndex).fitness = totalTroopCount;
-            population.get(currentlyTrainingIndex).fitness = totalTroopCount;
+            if (totalTroopCount > bots.get(currentlyTrainingIndex).fitness) {
+                bots.get(currentlyTrainingIndex).fitness = totalTroopCount;
+                population.get(currentlyTrainingIndex).fitness = totalTroopCount;
+            }
         }
     }
 
@@ -216,7 +218,7 @@ public class MachineLearningTrainer {
     private void createGame(PlayerBot bot1, PlayerBot bot2) throws FileNotFoundException {
         game = new Game(Arrays.asList(new Player(0, bot1, new File("player1.log"), 0), new Player(1, bot2, new File("player2.log"), 1)), new Game.TurnCallback() {
             @Override public void onPlayerResponse(Player player, int turn, List<MovementCommand> movementCommands, ByteBuffer binaryGameStatus) {
-                frame.setTitle("Turn " + turn);
+                frame.setTitle("Machine Learning Trainer: Turn " + turn);
                 frame.repaint();
             }
         }, true);

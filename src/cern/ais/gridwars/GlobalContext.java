@@ -51,7 +51,7 @@ public class GlobalContext {
         return cells;
     }
 
-    void dumpTurnCommands(List<MovementCommand> cmd) {
+    public void dumpTurnCommands(List<MovementCommand> cmd) {
         for (ArrayList<MovementCommand> e : this.nextTurnCommands.values()) {
             for (MovementCommand mc : e)
             cmd.add(mc);

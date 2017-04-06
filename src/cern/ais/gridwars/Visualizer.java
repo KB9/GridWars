@@ -123,7 +123,7 @@ public class Visualizer {
 	public static void main(String[] args) throws FileNotFoundException
 	{
 		new Visualizer().runGame(new TeamBot(true), new MovingBot());
-		//new MachineLearningTrainer();
+		new MachineLearningTrainer();
 	}
 
 	public void runGame(PlayerBot bot1, PlayerBot bot2) throws FileNotFoundException
