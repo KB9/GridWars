@@ -62,16 +62,16 @@ public class CellExpandCommand implements CellCommand {
             return;
         }
 
-        if (c.cellUp().safeForNextTurn() && shouldMoveUp){
+        if (/*c.cellUp().safeForNextTurn() &&*/ shouldMoveUp){
             c.moveTroops(MovementCommand.Direction.UP, troopsUpDown);
         }
-        if (c.cellRight().safeForNextTurn() && !shouldMoveLeft){
+        if (/*c.cellRight().safeForNextTurn() &&*/ !shouldMoveLeft){
             c.moveTroops(MovementCommand.Direction.RIGHT, troopsLeftRight);
         }
-        if (c.cellDown().safeForNextTurn() && !shouldMoveUp){
+        if (/*c.cellDown().safeForNextTurn() &&*/ !shouldMoveUp){
             c.moveTroops(MovementCommand.Direction.DOWN, troopsUpDown);
         }
-        if (c.cellLeft().safeForNextTurn() && shouldMoveLeft){
+        if (/*c.cellLeft().safeForNextTurn() &&*/ shouldMoveLeft){
             c.moveTroops(MovementCommand.Direction.LEFT, troopsLeftRight);
         }
 

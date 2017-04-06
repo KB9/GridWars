@@ -9,7 +9,7 @@ public class TeamBot implements PlayerBot {
 	Policy policy;
 	GlobalContext ctx = new GlobalContext();
 
-	TeamBot(){
+	public TeamBot(){
 	    policy = new ExpandPolicy();
     }
 	@Override public void getNextCommands(UniverseView universeView, List<MovementCommand> movementCommands) {

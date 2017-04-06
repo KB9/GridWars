@@ -134,9 +134,13 @@ public class GeneticAlgorithm {
         return bestFitness;
     }
 
+    // Accessor method
+    public Genome getFittestGenome() {
+        return population.get(fittestGenome);
+    }
+
     // Given parents and storage for the offspring, this method performs
     // crossover according to the genetic algorithm's crossover rate.
-    // TODO: Do I need to return the updated version or will this update the original?
     private void crossover(final List<Double> mum, final List<Double> dad,
                            List<Double> baby1, List<Double> baby2) {
         // Just return parents as offspring depending on the rate or if parents
@@ -163,7 +167,6 @@ public class GeneticAlgorithm {
 
     // Mutates a chromosome by perturbing its weights by an amount not greater
     // than Params.MAX_PERTURBATION
-    // TODO: Do I need to return the updated version or will this update the original?
     private void mutate(List<Double> chromosome) {
         // Traverse the chromosome and mutate each weight dependent on the
         // mutation rate
@@ -183,7 +186,7 @@ public class GeneticAlgorithm {
         double slice = (double)(Utils.randFloat() * totalFitness);
 
         // This will be set to the chosen chromosome
-        Genome chosen = new Genome(); // TODO: Seems strange that this is initialized in C++
+        Genome chosen = new Genome();
 
         // Go through the chromosomes adding up the fitness so far
         double fitnessSoFar = 0;
@@ -204,7 +207,6 @@ public class GeneticAlgorithm {
 
     // Works like an advanced form of elitism by inserting numCopies of the N
     // best most fittest genomes into a population.
-    // TODO: Do I need to return the updated version or will this update the original?
     private void grabNBest(int nBest, final int numCopies, List<Genome> pop) {
         // Add the required amount of copies of the N most fittest to the population
         while (nBest-- > 0) {

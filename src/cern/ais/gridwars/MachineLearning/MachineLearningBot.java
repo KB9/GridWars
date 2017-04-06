@@ -20,10 +20,10 @@ public class MachineLearningBot implements PlayerBot {
         MOVE_DOWN,
         MOVE_LEFT,
         MOVE_RIGHT,
-        SPLIT_HALF_UP,
-        SPLIT_HALF_DOWN,
-        SPLIT_HALF_LEFT,
-        SPLIT_HALF_RIGHT
+        SPLIT_ALL,
+        SPLIT_ALL_2,
+        SPLIT_ALL_3,
+        SPLIT_ALL_4,
     }
 
     private NeuralNet brain;
@@ -40,6 +40,10 @@ public class MachineLearningBot implements PlayerBot {
     public void putWeights(List<Double> weights) {
         brain.putWeights(weights);
         this.weights = weights;
+    }
+
+    public List<Double> getWeights() {
+        return weights;
     }
 
     @Override
@@ -67,10 +71,9 @@ public class MachineLearningBot implements PlayerBot {
                 // Categorize the weight into a movement tactic
                 MovementTactic tactic = categorizeWeight(outputs.get(index));
                 // Convert the movement tactic into an actual movement command
-                MovementCommand command = getCommand(tactic, cell);
-                System.out.println(command.toString());
-                // Add the command to the list of commands
-                list.add(command);
+                List<MovementCommand> commands = getCommands(tactic, cell);
+                // Add all the commands to the queue
+                list.addAll(commands);
             }
         }
     }
@@ -93,71 +96,77 @@ public class MachineLearningBot implements PlayerBot {
     }
 
     private MovementTactic categorizeWeight(double weight) {
-//        int enumIndex = (int)(weight * MovementTactic.values().length);
-//        return MovementTactic.values()[enumIndex];
         int enumIndex = (int)(weight * 100) % MovementTactic.values().length;
         return MovementTactic.values()[enumIndex];
     }
 
-    private MovementCommand getCommand(MovementTactic tactic, Cell cell) {
-        MovementCommand command = null;
+    private List<MovementCommand> getCommands(MovementTactic tactic, Cell cell) {
+        List<MovementCommand> commands = new ArrayList<>();
         switch (tactic) {
             case MOVE_UP:
-                command = new MovementCommand(
+                commands.add(new MovementCommand(
                         cell.coords,
                         MovementCommand.Direction.UP,
-                        (long)cell.troopCount());
+                        (long)cell.troopCount()));
                 break;
 
             case MOVE_DOWN:
-                command = new MovementCommand(
+                commands.add(new MovementCommand(
                         cell.coords,
                         MovementCommand.Direction.DOWN,
-                        (long)cell.troopCount());
+                        (long)cell.troopCount()));
                 break;
 
             case MOVE_LEFT:
-                command = new MovementCommand(
+                commands.add(new MovementCommand(
                         cell.coords,
                         MovementCommand.Direction.LEFT,
-                        (long)cell.troopCount());
+                        (long)cell.troopCount()));
                 break;
 
             case MOVE_RIGHT:
-                command = new MovementCommand(
+                commands.add(new MovementCommand(
                         cell.coords,
                         MovementCommand.Direction.RIGHT,
-                        (long)cell.troopCount());
+                        (long)cell.troopCount()));
                 break;
 
-            case SPLIT_HALF_UP:
-                command = new MovementCommand(
+            case SPLIT_ALL:
+            case SPLIT_ALL_2:
+            case SPLIT_ALL_3:
+            case SPLIT_ALL_4:
+                if (cell.troopCount() < 5) break;
+                commands.add(new MovementCommand(
                         cell.coords,
                         MovementCommand.Direction.UP,
-                        (long)cell.troopCount() / 2);
-                break;
-
-            case SPLIT_HALF_DOWN:
-                command = new MovementCommand(
+                        (long)cell.troopCount() / 5));
+                commands.add(new MovementCommand(
                         cell.coords,
                         MovementCommand.Direction.DOWN,
-                        (long)cell.troopCount() / 2);
-                break;
-
-            case SPLIT_HALF_LEFT:
-                command = new MovementCommand(
+                        (long)cell.troopCount() / 5));
+                commands.add(new MovementCommand(
                         cell.coords,
                         MovementCommand.Direction.LEFT,
-                        (long)cell.troopCount() / 2);
-                break;
-
-            case SPLIT_HALF_RIGHT:
-                command = new MovementCommand(
+                        (long)cell.troopCount() / 5));
+                commands.add(new MovementCommand(
                         cell.coords,
                         MovementCommand.Direction.RIGHT,
-                        (long)cell.troopCount() / 2);
+                        (long)cell.troopCount() / 5));
                 break;
         }
-        return command;
+        return commands;
+    }
+
+    private Cell getCellFromCommand(MovementCommand command) {
+        Coordinates from = command.getCoordinatesFrom();
+        return context.cellAt(from).cellAt(command.getDirection());
+    }
+
+    private boolean isCellFull(Cell cell) {
+        return cell.troopCount() < Cell.MAX_TROOPS && cell.belongsToMe();
+    }
+
+    private boolean isCellSurrounded(Cell cell) {
+        return cell.surroundedByMe();
     }
 }

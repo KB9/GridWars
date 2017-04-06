@@ -14,7 +14,12 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +28,8 @@ import java.util.List;
  * Created by kavan on 05/04/17.
  */
 public class MachineLearningTrainer {
+
+    private static final String FITTEST_FILENAME = "MachineLearningTrainer.weights";
 
     private static final int POPULATION_SIZE = 10;
 
@@ -50,11 +57,20 @@ public class MachineLearningTrainer {
             bots.get(i).putWeights(population.get(i).weights);
         }
 
+        // Insert the most evolved genome multiple times if it is available
+        // to support elitism from a previous training session
+        List<Double> mostEvolvedWeights = loadWeights();
+        if (mostEvolvedWeights != null) {
+            for (int i = 0; i < Params.NUM_ELITE; i++) {
+                bots.get(i).putWeights(mostEvolvedWeights);
+            }
+        }
+
         currentlyTrainingIndex = 0;
 
         // Run the game
         try {
-            runGame(bots.get(currentlyTrainingIndex), new MovingBot());
+            runGame(bots.get(currentlyTrainingIndex), new TeamBot());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -72,7 +88,8 @@ public class MachineLearningTrainer {
         // If the ML bot was defeated or the game is over
         if (coords == null || coords.size() == 0 || game.done()) {
             if (currentlyTrainingIndex == POPULATION_SIZE - 1) {
-                printStats();
+                //printStats();
+                saveWeights(algorithm.getFittestGenome().weights);
                 nextGen();
             }
             else {
@@ -81,7 +98,7 @@ public class MachineLearningTrainer {
 
             // Run the game
             try {
-                createGame(bots.get(currentlyTrainingIndex), new MovingBot());
+                createGame(bots.get(currentlyTrainingIndex), new TeamBot());
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -123,6 +140,36 @@ public class MachineLearningTrainer {
                 System.out.println(j + ": " + population.get(i).weights.get(j));
             }
         }
+    }
+
+    private boolean saveWeights(List<Double> weights) {
+        List<String> vals = new ArrayList<>();
+        for (double w : weights) {
+            vals.add(String.valueOf(w));
+        }
+        Path file = Paths.get(FITTEST_FILENAME);
+        try {
+            Files.write(file, vals, Charset.forName("UTF-8"));
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
+    }
+
+    private List<Double> loadWeights() {
+        List<String> lines = null;
+        Path file = Paths.get(FITTEST_FILENAME);
+        try {
+            lines = Files.readAllLines(file, Charset.forName("UTF-8"));
+        } catch (IOException e) {
+            return null;
+        }
+
+        List<Double> weights = new ArrayList<>();
+        for (String s : lines) {
+            weights.add(Double.valueOf(s));
+        }
+        return weights;
     }
 
     ////////////////////////////////////////////////////////////////////////////
