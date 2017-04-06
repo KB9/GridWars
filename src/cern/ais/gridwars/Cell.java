@@ -67,6 +67,75 @@ public class Cell {
         return cnt;
     }
 
+    public int cellsToEnemy(MovementCommand.Direction d) {
+        if(isEmpty()) return 0;
+
+        boolean isMine = belongsToMe();
+
+        Cell next = cellAt(d);
+        int cnt = 1;
+        while(!next.belongsToEnemy()){
+            if (next == this) return Integer.MAX_VALUE;
+            ++cnt;
+            next = next.cellAt(d);
+        }
+
+        return cnt;
+    }
+
+    private boolean smallestOf(int first, int... rest){
+        for (int j : rest) {
+            if (first >= j) return false;
+        }
+
+        return true;
+    }
+
+    public MovementCommand.Direction dirToCoordinates(Coordinates c) {
+        return dirToCoordinates(c.getX(), c.getY());
+    }
+    public MovementCommand.Direction dirToCoordinates(int x, int y) {
+        int diffX = x - this.coords.getX();
+        int diffY = x - this.coords.getY();
+
+        if (Math.abs(diffX) < Math.abs(diffY)) {
+            if (diffX > 25 || diffX < -25) {
+                return MovementCommand.Direction.RIGHT;
+            } else {
+                return MovementCommand.Direction.LEFT;
+            }
+        } else {
+            if (diffY > 25 || diffY < -25) {
+                return MovementCommand.Direction.DOWN;
+            } else {
+                return MovementCommand.Direction.UP;
+            }
+        }
+    }
+    public MovementCommand.Direction dirToClosestEnemy() {
+        if (isEmpty()) return null;
+
+        int cntUp = cellsToEnemy(MovementCommand.Direction.UP);
+        int cntDown = cellsToEnemy(MovementCommand.Direction.DOWN);
+        int cntLeft = cellsToEnemy(MovementCommand.Direction.LEFT);
+        int cntRight = cellsToEnemy(MovementCommand.Direction.RIGHT);
+
+        if (smallestOf(Integer.MAX_VALUE - 1, cntUp, cntDown, cntLeft, cntRight)) {
+            return null;
+        }
+        if (smallestOf(cntUp, cntDown, cntLeft, cntRight)){
+            return MovementCommand.Direction.UP;
+        } else if (smallestOf(cntDown, cntUp, cntLeft, cntRight)){
+            return MovementCommand.Direction.DOWN;
+        } else if (smallestOf(cntLeft, cntUp, cntDown, cntRight)){
+            return MovementCommand.Direction.LEFT;
+        } else if (smallestOf(cntRight, cntUp, cntLeft, cntDown)){
+            return MovementCommand.Direction.RIGHT;
+        }
+
+        return null;
+    }
+
     public int bestNextTurnEnemyAttackCount() {
         int total = cellUp().enemyTroops()
                 + cellDown().enemyTroops()

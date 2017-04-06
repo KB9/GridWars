@@ -122,7 +122,7 @@ public class Visualizer {
 
 	public static void main(String[] args) throws FileNotFoundException
 	{
-		new Visualizer().runGame(new TeamBot(true), new MovingBot());
+		new Visualizer().runGame(new TeamBot(), new GroovyBot());
 		//new MachineLearningTrainer();
 	}
 

@@ -8,12 +8,18 @@ import java.util.List;
 public class TeamBot implements PlayerBot {
 	Policy policy;
 	GlobalContext ctx = new GlobalContext();
+	Policy pol2= new ExpandPolicy(true);
 
-	public TeamBot(boolean aggressive){
-	    policy = new ExpandPolicy(aggressive);
+	int counter = 20;
+
+	public TeamBot(){
+	    policy = new ChasePolicy();
     }
 	@Override public void getNextCommands(UniverseView universeView, List<MovementCommand> movementCommands) {
         ctx.updateUniverseView(universeView);
+        if (counter-- >0){
+        	pol2.execute(ctx);
+		} else
 	    policy.execute(ctx);
 	    //ctx.recordCellStates();
 	    ctx.dumpTurnCommands(movementCommands);

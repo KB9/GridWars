@@ -10,6 +10,7 @@ import java.util.List;
  */
 public class ExpandPolicy extends Policy {
     private boolean aggressive;
+    public int mintroops = 8;
     public ExpandPolicy(boolean aggressive){
         this.aggressive = aggressive;
     }
@@ -19,6 +20,7 @@ public class ExpandPolicy extends Policy {
         ArrayList<Cell> myCells = ctx.myCells();
 
         CellExpandCommand cmd = new CellExpandCommand(aggressive);
+
 
         for (Cell c : myCells){
             c.executeCommand(cmd);
