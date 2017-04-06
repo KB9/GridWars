@@ -89,8 +89,8 @@ public class MachineLearningTrainer {
         // If the ML bot was defeated or the game is over
         if (coords == null || coords.size() == 0 || game.done()) {
             if (currentlyTrainingIndex == POPULATION_SIZE - 1) {
-                //printStats();
-                saveWeights(algorithm.getBestFitness(), algorithm.getFittestGenome().weights);
+                MachineLearningBot fittestBot = getBestBot();
+                saveWeights(fittestBot.fitness, fittestBot.getWeights());
                 nextGen();
             }
             else {
@@ -109,6 +109,16 @@ public class MachineLearningTrainer {
             bots.get(currentlyTrainingIndex).fitness = totalTroopCount;
             population.get(currentlyTrainingIndex).fitness = totalTroopCount;
         }
+    }
+
+    private MachineLearningBot getBestBot() {
+        MachineLearningBot fittestBot = null;
+        for (MachineLearningBot bot : bots) {
+            if (fittestBot == null || bot.fitness > fittestBot.fitness) {
+                fittestBot = bot;
+            }
+        }
+        return fittestBot;
     }
 
     private void nextGenIteration() {
