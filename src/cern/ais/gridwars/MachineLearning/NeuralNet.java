@@ -94,7 +94,7 @@ public class NeuralNet {
                     try {
                         layers.get(i).neurons.get(j).weights.set(k, weights.get(weight++));
                     } catch (IndexOutOfBoundsException e) {
-                        System.out.println("i=" + i + " j=" + j + " k=" + k + " weight=" + weight + " numInputs=" + layers.get(i).neurons.get(j).numInputs);
+                        System.out.println("i=" + i + " j=" + j + " k=" + k + " weight=" + weight + " numInputs=" + layers.get(i).neurons.get(j).numInputs + " weights=" + weights.size());
                         e.printStackTrace();
                         int x = 1 / 0;
                     }
