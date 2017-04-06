@@ -50,7 +50,7 @@ public class MachineLearningTrainer {
 
         bots = new ArrayList<>();
         for (int i = 0; i < POPULATION_SIZE; i++) {
-            bots.add(new MachineLearningBot());
+            bots.add(new MachineLearningBot(false));
         }
 
         population = algorithm.getChromosomes();
@@ -71,7 +71,7 @@ public class MachineLearningTrainer {
 
         // Run the game
         try {
-            runGame(bots.get(currentlyTrainingIndex), new TeamBot(true));
+            runGame(bots.get(currentlyTrainingIndex), new MachineLearningBot(true));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -99,16 +99,18 @@ public class MachineLearningTrainer {
 
             // Run the game
             try {
-                createGame(bots.get(currentlyTrainingIndex), new TeamBot(true));
+                createGame(bots.get(currentlyTrainingIndex), new MachineLearningBot(true));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
         } else {
             // Update the fitness by counting the number of our troops
             int totalTroopCount = getTotalTroopCount();
-            if (totalTroopCount > bots.get(currentlyTrainingIndex).fitness) {
-                bots.get(currentlyTrainingIndex).fitness = totalTroopCount;
-                population.get(currentlyTrainingIndex).fitness = totalTroopCount;
+            int occupiedCellCount = getOccupiedCellCount();
+            int ranking = (occupiedCellCount * 200) + totalTroopCount;
+            if (ranking > bots.get(currentlyTrainingIndex).fitness) {
+                bots.get(currentlyTrainingIndex).fitness = ranking;
+                population.get(currentlyTrainingIndex).fitness = ranking;
             }
         }
     }
@@ -155,14 +157,31 @@ public class MachineLearningTrainer {
         }
     }
 
+    private double getOldFitness() {
+        // Get the first old weight
+        List<String> lines;
+        Path file = Paths.get(FITTEST_FILENAME);
+        try {
+            lines = Files.readAllLines(file, Charset.forName("UTF-8"));
+        } catch (IOException e) {
+            return -1;
+        }
+
+        return Double.valueOf(lines.get(0));
+    }
+
     private boolean saveWeights(double fitness, List<Double> weights) {
+        // If the new fitness is greater than the old fitness
+        double oldFitness = getOldFitness();
+        if (oldFitness > -1 && fitness < oldFitness) return false;
+
         List<String> vals = new ArrayList<>();
         for (double w : weights) {
             vals.add(String.valueOf(w));
         }
 
         // Insert the fitness value at the top
-        vals.add(0, "Fitness: " + String.valueOf(fitness) + "/" + GlobalContext.NUM_CELLS * Cell.MAX_TROOPS);
+        vals.add(0, String.valueOf(fitness));
 
         Path file = Paths.get(FITTEST_FILENAME);
         try {
@@ -188,6 +207,18 @@ public class MachineLearningTrainer {
             weights.add(Double.valueOf(lines.get(i)));
         }
         return weights;
+    }
+
+    private int getOccupiedCellCount() {
+        MachineLearningBot activeBot = bots.get(currentlyTrainingIndex);
+        int count;
+        try {
+            count = activeBot.context.myCells().size();
+        } catch (NullPointerException e) {
+            System.out.println("UV not yet initialized -- should only be called on first move!");
+            return -1;
+        }
+        return count;
     }
 
     private int getTotalTroopCount() {

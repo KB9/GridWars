@@ -5,6 +5,7 @@ import cern.ais.gridwars.bot.PlayerBot;
 import cern.ais.gridwars.command.MovementCommand;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -17,10 +18,20 @@ public class MachineLearningBot implements PlayerBot {
     private List<Double> weights;
     public GlobalContext context;
 
-    public MachineLearningBot() {
+    private boolean useDefaultWeights;
+
+    public MachineLearningBot(boolean useDefaultWeights) {
         brain = new NeuralNet();
         weights = new ArrayList<>();
         context = new GlobalContext();
+
+        this.useDefaultWeights = useDefaultWeights;
+
+        if (useDefaultWeights) {
+            weights.addAll(Arrays.asList(DefaultWeights.ARRAY));
+            weights.addAll(Arrays.asList(DefaultWeights2.ARRAY));
+            brain.putWeights(weights);
+        }
     }
 
     public void putWeights(List<Double> weights) {
@@ -67,10 +78,12 @@ public class MachineLearningBot implements PlayerBot {
     }
 
     private Policy getPolicyFromOutput(double output) {
-        if (output >= 0 && output < 0.5)
+        if (output >= 0 && output < 0.33)
             return new ExpandPolicy(true);
-        else if (output >= 0.5 && output <= 1)
-            return new ExpandPolicy(false);
+        else if (output >= 0.33 && output <= 0.67)
+            return new CircularGrowPolicy();
+        else if (output >= 0.67 && output <= 1)
+            return new HorizontalLinePolicy();
         return null;
     }
 }
