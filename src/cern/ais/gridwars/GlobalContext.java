@@ -50,7 +50,7 @@ public class GlobalContext {
         }
         return cells;
     }
-
+    
     public ArrayList<Cell> enemyCells() {
         ArrayList<Cell> enemy = new ArrayList<>();
 
@@ -67,7 +67,7 @@ public class GlobalContext {
 
     }
 
-    void dumpTurnCommands(List<MovementCommand> cmd) {
+    public void dumpTurnCommands(List<MovementCommand> cmd) {
         for (ArrayList<MovementCommand> e : this.nextTurnCommands.values()) {
             for (MovementCommand mc : e)
             cmd.add(mc);

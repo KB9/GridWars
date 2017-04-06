@@ -46,11 +46,11 @@ public class MachineLearningTrainer {
                 POPULATION_SIZE,
                 Params.MUTATION_RATE,
                 Params.CROSSOVER_RATE,
-                22504);// I HAVE NO IDEA WHY THIS IS THE NUMBER (+4 is hidden layer)
+                10009);// (2501 * 4) + 4 + 1
 
         bots = new ArrayList<>();
         for (int i = 0; i < POPULATION_SIZE; i++) {
-            bots.add(new MachineLearningBot());
+            bots.add(new MachineLearningBot(false));
         }
 
         population = algorithm.getChromosomes();
@@ -71,7 +71,7 @@ public class MachineLearningTrainer {
 
         // Run the game
         try {
-            runGame(bots.get(currentlyTrainingIndex), new TeamBot());
+            runGame(bots.get(currentlyTrainingIndex), new MachineLearningBot(true));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -89,8 +89,8 @@ public class MachineLearningTrainer {
         // If the ML bot was defeated or the game is over
         if (coords == null || coords.size() == 0 || game.done()) {
             if (currentlyTrainingIndex == POPULATION_SIZE - 1) {
-                //printStats();
-                saveWeights(algorithm.getBestFitness(), algorithm.getFittestGenome().weights);
+                MachineLearningBot fittestBot = getBestBot();
+                saveWeights(fittestBot.fitness, fittestBot.getWeights());
                 nextGen();
             }
             else {
@@ -99,16 +99,30 @@ public class MachineLearningTrainer {
 
             // Run the game
             try {
-                createGame(bots.get(currentlyTrainingIndex), new TeamBot());
+                createGame(bots.get(currentlyTrainingIndex), new MachineLearningBot(true));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
         } else {
             // Update the fitness by counting the number of our troops
             int totalTroopCount = getTotalTroopCount();
-            bots.get(currentlyTrainingIndex).fitness = totalTroopCount;
-            population.get(currentlyTrainingIndex).fitness = totalTroopCount;
+            int occupiedCellCount = getOccupiedCellCount();
+            int ranking = (occupiedCellCount * 200) + totalTroopCount;
+            if (ranking > bots.get(currentlyTrainingIndex).fitness) {
+                bots.get(currentlyTrainingIndex).fitness = ranking;
+                population.get(currentlyTrainingIndex).fitness = ranking;
+            }
         }
+    }
+
+    private MachineLearningBot getBestBot() {
+        MachineLearningBot fittestBot = null;
+        for (MachineLearningBot bot : bots) {
+            if (fittestBot == null || bot.fitness > fittestBot.fitness) {
+                fittestBot = bot;
+            }
+        }
+        return fittestBot;
     }
 
     private void nextGenIteration() {
@@ -143,14 +157,31 @@ public class MachineLearningTrainer {
         }
     }
 
+    private double getOldFitness() {
+        // Get the first old weight
+        List<String> lines;
+        Path file = Paths.get(FITTEST_FILENAME);
+        try {
+            lines = Files.readAllLines(file, Charset.forName("UTF-8"));
+        } catch (IOException e) {
+            return -1;
+        }
+
+        return Double.valueOf(lines.get(0));
+    }
+
     private boolean saveWeights(double fitness, List<Double> weights) {
+        // If the new fitness is greater than the old fitness
+        double oldFitness = getOldFitness();
+        if (oldFitness > -1 && fitness < oldFitness) return false;
+
         List<String> vals = new ArrayList<>();
         for (double w : weights) {
             vals.add(String.valueOf(w));
         }
 
         // Insert the fitness value at the top
-        vals.add(0, "Fitness: " + String.valueOf(fitness) + "/" + GlobalContext.NUM_CELLS * Cell.MAX_TROOPS);
+        vals.add(0, String.valueOf(fitness));
 
         Path file = Paths.get(FITTEST_FILENAME);
         try {
@@ -176,6 +207,18 @@ public class MachineLearningTrainer {
             weights.add(Double.valueOf(lines.get(i)));
         }
         return weights;
+    }
+
+    private int getOccupiedCellCount() {
+        MachineLearningBot activeBot = bots.get(currentlyTrainingIndex);
+        int count;
+        try {
+            count = activeBot.context.myCells().size();
+        } catch (NullPointerException e) {
+            System.out.println("UV not yet initialized -- should only be called on first move!");
+            return -1;
+        }
+        return count;
     }
 
     private int getTotalTroopCount() {
@@ -206,7 +249,7 @@ public class MachineLearningTrainer {
     private void createGame(PlayerBot bot1, PlayerBot bot2) throws FileNotFoundException {
         game = new Game(Arrays.asList(new Player(0, bot1, new File("player1.log"), 0), new Player(1, bot2, new File("player2.log"), 1)), new Game.TurnCallback() {
             @Override public void onPlayerResponse(Player player, int turn, List<MovementCommand> movementCommands, ByteBuffer binaryGameStatus) {
-                frame.setTitle("Turn " + turn);
+                frame.setTitle("Machine Learning Trainer: Turn " + turn);
                 frame.repaint();
             }
         }, true);

@@ -9,7 +9,7 @@ public class Params {
     public static final int NUM_INPUTS = 2500;
     public static final int NUM_HIDDEN_LAYERS = 1;
     public static final int NUM_NEURONS_PER_HIDDEN_LAYER = 4;
-    public static final int NUM_OUTPUTS = 2500;
+    public static final int NUM_OUTPUTS = 1;
 
     // For tweaking the sigmoid function
     public static final double ACTIVATION_RESPONSE = 1.0;
