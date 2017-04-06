@@ -1,6 +1,7 @@
 package cern.ais.gridwars.MachineLearning;
 
 import cern.ais.gridwars.*;
+import cern.ais.gridwars.Cell;
 import cern.ais.gridwars.bot.PlayerBot;
 import cern.ais.gridwars.cell.*;
 import cern.ais.gridwars.command.MovementCommand;
@@ -45,7 +46,7 @@ public class MachineLearningTrainer {
                 POPULATION_SIZE,
                 Params.MUTATION_RATE,
                 Params.CROSSOVER_RATE,
-                22504);//GlobalContext.NUM_CELLS * 10); // I HAVE NO IDEA WHY THIS IS THE NUMBER (+4 is hidden layer)
+                22504);// I HAVE NO IDEA WHY THIS IS THE NUMBER (+4 is hidden layer)
 
         bots = new ArrayList<>();
         for (int i = 0; i < POPULATION_SIZE; i++) {
@@ -89,7 +90,7 @@ public class MachineLearningTrainer {
         if (coords == null || coords.size() == 0 || game.done()) {
             if (currentlyTrainingIndex == POPULATION_SIZE - 1) {
                 //printStats();
-                saveWeights(algorithm.getFittestGenome().weights);
+                saveWeights(algorithm.getBestFitness(), algorithm.getFittestGenome().weights);
                 nextGen();
             }
             else {
@@ -103,10 +104,10 @@ public class MachineLearningTrainer {
                 e.printStackTrace();
             }
         } else {
-            // TODO: Need to update fitness properly here by looking at state differences
-            // TODO: between the current and previous grids
-            bots.get(currentlyTrainingIndex).fitness++;
-            population.get(currentlyTrainingIndex).fitness++;
+            // Update the fitness by counting the number of our troops
+            int totalTroopCount = getTotalTroopCount();
+            bots.get(currentlyTrainingIndex).fitness = totalTroopCount;
+            population.get(currentlyTrainingIndex).fitness = totalTroopCount;
         }
     }
 
@@ -121,7 +122,7 @@ public class MachineLearningTrainer {
         population = algorithm.epoch(population);
 
         for (int i = 0; i < POPULATION_SIZE; i++) {
-            bots.get(i).putWeights(population.get(i).weights);	// GA step 3.C
+            bots.get(i).putWeights(population.get(i).weights);
         }
 
         currentGeneration++;
@@ -142,11 +143,15 @@ public class MachineLearningTrainer {
         }
     }
 
-    private boolean saveWeights(List<Double> weights) {
+    private boolean saveWeights(double fitness, List<Double> weights) {
         List<String> vals = new ArrayList<>();
         for (double w : weights) {
             vals.add(String.valueOf(w));
         }
+
+        // Insert the fitness value at the top
+        vals.add(0, "Fitness: " + String.valueOf(fitness) + "/" + GlobalContext.NUM_CELLS * Cell.MAX_TROOPS);
+
         Path file = Paths.get(FITTEST_FILENAME);
         try {
             Files.write(file, vals, Charset.forName("UTF-8"));
@@ -157,7 +162,7 @@ public class MachineLearningTrainer {
     }
 
     private List<Double> loadWeights() {
-        List<String> lines = null;
+        List<String> lines;
         Path file = Paths.get(FITTEST_FILENAME);
         try {
             lines = Files.readAllLines(file, Charset.forName("UTF-8"));
@@ -166,10 +171,25 @@ public class MachineLearningTrainer {
         }
 
         List<Double> weights = new ArrayList<>();
-        for (String s : lines) {
-            weights.add(Double.valueOf(s));
+        // Ignore the line declaring the fitness
+        for (int i = 1; i < lines.size(); i++) {
+            weights.add(Double.valueOf(lines.get(i)));
         }
         return weights;
+    }
+
+    private int getTotalTroopCount() {
+        MachineLearningBot activeBot = bots.get(currentlyTrainingIndex);
+        int sum = 0;
+        try {
+            for (Cell cell : activeBot.context.myCells()) {
+                sum += cell.myTroops();
+            }
+        } catch (NullPointerException e) {
+            System.out.println("UV not yet initialized -- should only be called on first move!");
+            return -1;
+        }
+        return sum;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -179,7 +199,7 @@ public class MachineLearningTrainer {
     private JFrame frame;
     private boolean m_Running = !false;
     private Label m_StatusLabel;
-    private int[] speeds = new int[] { 10, 20, 40, 80, 160, 320, 500 };
+    private int[] speeds = new int[] { 1, 10, 20, 40, 80, 160, 320, 500 };
     private int m_TimerSpeedId = 3;
     private Game game;
 

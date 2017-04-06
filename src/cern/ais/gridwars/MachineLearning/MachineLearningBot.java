@@ -29,7 +29,7 @@ public class MachineLearningBot implements PlayerBot {
     private NeuralNet brain;
     public double fitness;
     private List<Double> weights;
-    private GlobalContext context;
+    public GlobalContext context;
 
     public MachineLearningBot() {
         brain = new NeuralNet();

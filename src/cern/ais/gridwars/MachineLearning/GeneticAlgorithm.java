@@ -146,8 +146,10 @@ public class GeneticAlgorithm {
         // Just return parents as offspring depending on the rate or if parents
         // are the same
         if ((Utils.randFloat() > crossoverRate) || (mum == dad)) {
-            baby1 = mum;
-            baby2 = dad;
+//            baby1 = mum;
+//            baby2 = dad;
+            for (double d : mum) baby1.add(d);
+            for (double d : dad) baby2.add(d);
             return;
         }
 
