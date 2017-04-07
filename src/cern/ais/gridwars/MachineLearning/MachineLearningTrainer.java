@@ -88,6 +88,19 @@ public class MachineLearningTrainer {
 
         // If the ML bot was defeated or the game is over
         if (coords == null || coords.size() == 0 || game.done()) {
+
+            // If the game is done and the player lost, remove its fitness completely
+            if (game.done()) {
+                try {
+                    if (!game.getWinner().equals(new Player(0, bots.get(currentlyTrainingIndex), new File("player1.log"), 0))) {
+                        bots.get(currentlyTrainingIndex).fitness = 0;
+                        population.get(currentlyTrainingIndex).fitness = 0;
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+
             if (currentlyTrainingIndex == POPULATION_SIZE - 1) {
                 MachineLearningBot fittestBot = getBestBot();
                 saveWeights(fittestBot.fitness, fittestBot.getWeights());

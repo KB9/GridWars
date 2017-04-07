@@ -78,12 +78,14 @@ public class MachineLearningBot implements PlayerBot {
     }
 
     private Policy getPolicyFromOutput(double output) {
-        if (output >= 0 && output < 0.33)
+        if (output >= 0 && output < 0.25)
             return new ExpandPolicy(true);
-        else if (output >= 0.33 && output <= 0.67)
+        else if (output >= 0.25 && output < 0.5)
             return new CircularGrowPolicy();
-        else if (output >= 0.67 && output <= 1)
+        else if (output >= 0.5 && output < 0.75)
             return new HorizontalLinePolicy();
+        else if (output >= 0.75 && output <= 1)
+            return new ChasePolicy();
         return null;
     }
 }
