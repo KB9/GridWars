@@ -20,12 +20,14 @@ public class MachineLearningBot implements PlayerBot {
 
     private boolean useDefaultWeights;
 
+    public MachineLearningBot() {
+        this(true);
+    }
+
     public MachineLearningBot(boolean useDefaultWeights) {
         brain = new NeuralNet();
         weights = new ArrayList<>();
         context = new GlobalContext();
-
-        this.useDefaultWeights = useDefaultWeights;
 
         if (useDefaultWeights) {
             weights.addAll(Arrays.asList(DefaultWeights.ARRAY));
